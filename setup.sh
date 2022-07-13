@@ -252,26 +252,31 @@ gh auth login -h github.com -p HTTPS -s admin:public_key
 
 cecho "# Setup ssh-key for git..." "$cyan"
 
-mkdir -p "$HOME/.ssh"
+cecho "Do you want to setup ssh key for github? (Y/n): " "$yellow"
+read -r response
+response=${response:-"Y"}
+if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
+  mkdir -p "$HOME/.ssh"
 
-echo "This step will create a ssh key to use will pulling repo from github"
-cecho "Please enter your github account name for commenting the file and file name." "$yellow"
-read -r GITHUB_ACCOUNT
-GITHUB_ACCOUNT=${GITHUB_ACCOUNT:-"tomazwang"}
-SSH_KEY_FILE="$HOME/.ssh/github.$GITHUB_ACCOUNT"
-PUBLIC_KEY_FILE="$SSH_KEY_FILE.pub"
+  echo "This step will create a ssh key to use will pulling repo from github"
+  cecho "Please enter your github account name for commenting the file and file name." "$yellow"
+  read -r GITHUB_ACCOUNT
+  GITHUB_ACCOUNT=${GITHUB_ACCOUNT:-"tomazwang"}
+  SSH_KEY_FILE="$HOME/.ssh/github.$GITHUB_ACCOUNT"
+  PUBLIC_KEY_FILE="$SSH_KEY_FILE.pub"
 
-echo "Generating ssh key file $SSH_KEY_FILE"
-ssh-keygen -t ed25519 -C "github.com $GITHUB_ACCOUNT" -f "$SSH_KEY_FILE"
-echo "Adding ssh-key to github"
-gh ssh-key add "$PUBLIC_KEY_FILE" -t "$MAC_NAME"
-echo "Setting ssh config"
-echo "
-Host github.com
-  HostName github.com
-  IdentityFile $SSH_KEY_FILE
-" >> "$HOME/.ssh/config"
-
+  echo "Generating ssh key file $SSH_KEY_FILE"
+  ssh-keygen -t ed25519 -C "github.com $GITHUB_ACCOUNT" -f "$SSH_KEY_FILE"
+  echo "Adding ssh-key to github"
+  gh ssh-key add "$PUBLIC_KEY_FILE" -t "$MAC_NAME"
+  echo "Setting ssh config"
+  ssh-add -K $SSH_KEY_FILE
+  cat <<EOT >> "$HOME/.ssh/config"
+  Host github.com
+    HostName github.com
+    IdentityFile $SSH_KEY_FILE
+EOT
+fi
 
 
 if ! test $(which chezmoi); then
