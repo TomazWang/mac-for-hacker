@@ -295,6 +295,20 @@ node --version > ~/.npmrc
 
 npm install -g npmrc
 
+####################
+# Java
+####################
+
+cecho "# Installing SDKman ... " "$cyan"
+
+curl -s "https://get.sdkman.io" | bash
+source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+
+sdk update
+echo "installing java 11"
+sdk install "11.0.15.9.1-amzn"
+sdk use "11.0.15.9.1-amzn"
 
 ####################
 # Mac App
@@ -354,6 +368,7 @@ APPS=(
   'Android Studio'
   'Visual Studio Code'
   'TablePlus'
+  'Flux'
 )
 
 
@@ -361,14 +376,15 @@ for app in "${APPS[@]}"
 do
   APP_DIR="/Applications/${app}.app"
   echo "checking ${app}"
-  if [ -d "$APP_DIR" ]
-  then
-    echo "open $app ?"
+  if [ -d "$APP_DIR" ]; then
+    echo "open $app?"
     read -r res
     res=${res:-y}
     if [[ $res =~ ^([yY][eE][sS]|[yY])$ ]]; then
       open "$APP_DIR"
     fi
+  else
+    echo "$app not installed"
   fi
 done
 
@@ -391,7 +407,6 @@ m volume 0
 m dock autohide YES
 m dock magnification YES
 m dock prune
-
 
 
 ####################
