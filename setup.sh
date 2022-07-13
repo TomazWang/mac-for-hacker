@@ -91,7 +91,7 @@ fi
 # Install Homebrew
 cecho "# Installing Homebrew..." "$cyan"
 if test ! $(which brew); then
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 fi
 
 brew upgrade
@@ -204,6 +204,7 @@ fi
 
 cecho "Install Brewfile? (Y/n)" "$yello"
 read -r response
+response=${response:-"Y"}
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
     cecho "# Installing formulas and casks via Brew..." "$cyan"
     brew bundle install -f "$BREW_FILE"
