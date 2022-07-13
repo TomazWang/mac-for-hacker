@@ -279,7 +279,7 @@ EOT
 fi
 
 
-if ! test $(which chezmoi); then
+if command -v chezmoi &> /dev/null; then
   cecho "Download restore dotfiles with chezmoi?(Y/n)" "$yellow"
   read -r response
   response=${response:-"Y"}
@@ -298,6 +298,7 @@ if ! test $(which chezmoi); then
       chezmoi update
     fi
   fi
+fi
 
 
 ####################
