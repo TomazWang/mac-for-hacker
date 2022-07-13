@@ -65,7 +65,7 @@ fi
 ### START ----------
 
 TEMP_DIR="~/mac-booster"
-mkdir -p $TEMP_DIR
+mkdir $TEMP_DIR
 
 
 
