@@ -263,11 +263,16 @@ if ! test $(which chezmoi); then
   then
     cecho "# Syncing dotfiles with chezmoi..." "$blud"
 
-    cecho "Please enter the github repo for dotfiles. (for chezmoi ex. https://github.com/username/dotfiles.git)" "$yellow"
-    read -r DOTFILE_REPO
+    if [ ! -d $(chezmoi source-path) ]; then
+      echo "Chezmoi dir not found"
+      cecho "Please enter the github repo for dotfiles. (for chezmoi ex. https://github.com/username/dotfiles.git)" "$yellow"
+      read -r DOTFILE_REPO
 
-    echo "Init chezmoi from $DOTFILE_REPO"
-    chezmoi init --apply "$DOTFILE_REPO"
+      echo "Init chezmoi from $DOTFILE_REPO"
+      chezmoi init --apply "$DOTFILE_REPO"
+    else
+      chezmoi update
+    fi
   fi
 
 
@@ -339,4 +344,23 @@ m dock prune
 
 
 
+####################
+# POST ACTION
+####################
+
+echo ""
+cecho "All done!" $cyan
+echo ""
+echo ""
+cecho "################################################################################" $white
+echo ""
+echo ""
+cecho "Note that some of these changes require a logout/restart to take effect." $red
+echo ""
+echo ""
+echo -n "Check for and install available OSX updates, install, and automatically restart? (y/n)? "
+read response
+if [ "$response" != "${response#[Yy]}" ] ;then
+    softwareupdate -i -a --restart
+fi
 
