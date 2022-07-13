@@ -79,12 +79,14 @@ cecho "Please name this Mac: (default: ${DEFAULT_DEVICE_NAME})" "$yellow"
 read -r MAC_NAME
 MAC_NAME=${MAC_NAME:-$DEFAULT_DEVICE_NAME}
 
-cecho "Set your mac's name as $MAC_NAME?(Y/n)" "$yellow"
-read -r response
-response=${response:-Y}
-if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
-    cecho "# Setting ComputerName to $MAC_NAME" "$cyan"
-    scutil --set ComputerName "$MAC_NAME"
+if [[ "$DEFAULT_DEVICE_NAME" != "$MAC_NAME" ]]; then
+  cecho "Set your mac's name as $MAC_NAME?(Y/n)" "$yellow"
+  read -r response
+  response=${response:-Y}
+  if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
+      cecho "# Setting ComputerName to $MAC_NAME" "$cyan"
+      scutil --set ComputerName "$MAC_NAME"
+  fi
 fi
 
 
