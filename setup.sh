@@ -237,7 +237,7 @@ if ! test $(which zsh); then
 fi
 
 # install oh-my-zsh
-if [ ! -d "~/.oh-my-zsh" ]; then
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
   cecho "# Installing oh-my-zsh..." "$cyan"
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 else 
@@ -252,11 +252,13 @@ gh auth login -h github.com -p HTTPS -s admin:public_key
 
 cecho "# Setup ssh-key for git..." "$cyan"
 
+mkdir -p "$HOME/.ssh"
+
 echo "This step will create a ssh key to use will pulling repo from github"
 cecho "Please enter your github account name for commenting the file and file name." "$yellow"
 read -r GITHUB_ACCOUNT
 GITHUB_ACCOUNT=${GITHUB_ACCOUNT:-"tomazwang"}
-SSH_KEY_FILE="~/.ssh/github.$GITHUB_ACCOUNT"
+SSH_KEY_FILE="$HOME/.ssh/github.$GITHUB_ACCOUNT"
 PUBLIC_KEY_FILE="$SSH_KEY_FILE.pub"
 
 echo "Generating ssh key file $SSH_KEY_FILE"
@@ -267,8 +269,8 @@ echo "Setting ssh config"
 echo "
 Host github.com
   HostName github.com
-  IdentityFile ${SSH_KEY_FILE="${GITHUB_ACC}"}
-" >> "~/.ssh/config"
+  IdentityFile $SSH_KEY_FILE
+" >> "$HOME/.ssh/config"
 
 
 
@@ -308,7 +310,7 @@ fnm install --lts
 fnm default lts-latest
 fnm use default
 
-node --version > ~/.npmrc
+node --version > $HOME/.npmrc
 
 npm install -g npmrc
 
