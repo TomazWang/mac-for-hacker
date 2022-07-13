@@ -196,6 +196,8 @@ cask "flux"
 # cask "jetbrains-toolbox"
 EOF
 
+echo "Brefile created in $BREW_FILE"
+
 
 echo ""
 cecho "Please go through the Brewfile and comment out unnessary formulas and casks. " "$red"
@@ -213,6 +215,7 @@ read -r response
 response=${response:-"Y"}
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
     cecho "# Installing formulas and casks via Brew..." "$cyan"
+    echo "Brewfile $BREW_FILE"
     brew bundle install -f "$BREW_FILE"
     brew cleanup
 fi
