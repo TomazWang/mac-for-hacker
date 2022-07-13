@@ -5,10 +5,10 @@
 
 # Set the colours you can use
 black=$(tput setaf 0)
-red=$(tput setaf 1)
-green=$(tput setaf 2)
-yellow=$(tput setaf 3)
-blue=$(tput setaf 4)
+red=$(tput setaf 1)     # for warning
+green=$(tput setaf 2)   
+yellow=$(tput setaf 3)  # for response
+blue=$(tput setaf 4)    # main stage
 magenta=$(tput setaf 5)
 cyan=$(tput setaf 6)
 white=$(tput setaf 7)
@@ -45,8 +45,8 @@ cecho "===================================================" "$red"
 CONTINUE=false
 
 echo ""
-echo "Have you read through the script you're about to run and "
-echo "understood that it will make changes to your computer? (y/N)"
+cecho "Have you read through the script you're about to run and     " "$yellow" 
+cecho "understood that it will make changes to your computer? (y/N) " "$yellow" 
 read -r response
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
   CONTINUE=true
@@ -65,9 +65,22 @@ fi
 ### START ----------
 
 # Ask for admin password before runing
-cecho "This script will ask for password..." "$blue"
+cecho "Please enter password for administrator permission" "$yellow"
 sudo -v
 while true; do sudo -n; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+
+DEFAULT_DEVICE_NAME=$(scutil --get ComputerName)
+cecho "Please name this Mac...(default: ${DEFAULT_DEVICE_NAME}" "$yellow"
+read -r MAC_NAME
+MAC_NAME=${MAC_NAME:-$DEFAULT_DEVICE_NAME}
+
+cecho "Set your mac's name as $MAC_NAME?(Y/n)" "$yellow"
+read -r response
+response=${response:-Y}
+if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
+    cecho "# Setting ComputerName to $MAC_NAME" "$blue"
+    scutil --set ComputerName "$MAC_NAME"
+fi
 
 
 
@@ -76,7 +89,7 @@ while true; do sudo -n; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 ##############################
 
 # Install Homebrew
-cecho "Installing Homebrew..." "$blue"
+cecho "# Installing Homebrew..." "$blue"
 if test ! $(which brew); then
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 fi
@@ -85,7 +98,7 @@ brew upgrade
 brew update
 
 ### Creating Brewfile ----------
-cecho "Generating Brefile ..." "$blue"
+cecho "# Generating Brefile ..." "$blue"
 mkdir -p "~/.mac-booster"
 BREW_FILE="~/.mac-booster/Brewfile"
 
@@ -151,7 +164,7 @@ cask "font-fira-code"
 # Mac Utils
 cask "alfred"           # better than spotlight
 cask "bartender"        # menu cleaner
-cask "disk-drill"      
+cask "disk-drill"
 cask "istat-menus"      # mac machine status
 cask "itsycal"          # simple yet powerful calendar widget
 cask "cleanshot"        # best screenshot app
@@ -179,19 +192,21 @@ EOF
 
 
 echo ""
-echo "Please go through the Brewfile and comment out unnessary formulas and casks."
-echo "All remaining apps will be (re-)installed."
+cecho "Please go through the Brewfile and comment out unnessary formulas and casks. " "$red"
+cecho "All remaining apps will be (re-)installed.                                   " "$red"
 echo ""
-echo "Open the Brewfile?(Y/n)"
+cecho "Open the Brewfile?(Y/n)                                                      " "$yellow"
 read -r response
 response=${response:-Y}
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
     open "$BREW_FILE"
 fi
 
-read -p "Install Brewfile? (Y/n)" response
+cecho "Install Brewfile? (Y/n)" "$yello"
+read -r response
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
-    brew install -f "$BREW_FILE"
+    cecho "# Installing formulas and casks via Brew..." "$blue"
+    brew bundle install -f "$BREW_FILE"
     brew cleanup
 fi
 
@@ -202,34 +217,95 @@ fi
 # Zsh
 ####################
 
-cecho "Setup Zsh..." "$blue"
+cecho "# Setup Zsh..." "$blue"
 
 if ! test $(which zsh); then
+    cecho "# Installing zsh via brew..." "$blue"
     brew install zsh
 fi
 
+# install oh-my-zsh
+cecho "# Installing oh-my-zsh..." "$blue"
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 
+cecho "# Logging in to Github via gh..." "$blue"
+# use public key scope for setting ssh key
+gh auth login -h github.com -p HTTPS -s admin:public_key
+
+
+cecho "# Setup ssh-key for git..." "$blue"
+
+echo "This step will create a ssh key to use will pulling repo from github"
+cecho "Please enter your github account name for commenting the file and file name." "$yellow"
+read -r GITHUB_ACCOUNT
+GITHUB_ACCOUNT=${GITHUB_ACCOUNT:-"tomazwang"}
+SSH_KEY_FILE="~/.ssh/github.$GITHUB_ACCOUNT"
+PUBLIC_KEY_FILE="$SSH_KEY_FILE.pub"
+
+echo "Generating ssh key file $SSH_KEY_FILE"
+ssh-keygen -t ed25519 -C "github.com $GITHUB_ACCOUNT" -f "$SSH_KEY_FILE"
+echo "Adding ssh-key to github"
+gh ssh-key add "$PUBLIC_KEY_FILE" -t "$MAC_NAME"
+echo "Setting ssh config"
+echo "
+Host github.com
+  HostName github.com
+  IdentityFile ${SSH_KEY_FILE="${GITHUB_ACC}"}
+" >> "~/.ssh/config"
+
+
+
+if ! test $(which chezmoi); then
+  cecho "Download restore dotfiles with chezmoi?(Y/n)" "$yellow"
+  read -r response
+  if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]
+  then
+    cecho "# Syncing dotfiles with chezmoi..." "$blud"
+
+    cecho "Please enter the github repo for dotfiles. (for chezmoi ex. https://github.com/username/dotfiles.git)" "$yellow"
+    read -r DOTFILE_REPO
+
+    echo "Init chezmoi from $DOTFILE_REPO"
+    chezmoi init --apply "$DOTFILE_REPO"
+  fi
 
 
 ####################
 # Node
 ####################
 
+cecho "# Setup node env..." "$blue"
 
+if ! test $(which fnm); then
+  echo "Install fnm to install node"
+  brew install fnm
+fi
 
+fnm install --lts
+fnm default lts-latest
+fnm use default
 
+node --version > ~/.npmrc
+
+npm install -g npmrc
 
 
 ####################
 # Mac App
 ####################
 
-cecho "Need to log in to App Store manually to install apps with mas...." $red
-echo "Opening App Store. Please login."
+if ! test $(which mas); then
+  echo "Install mas to control AppStore"
+  brew install mas
+fi
+
+cecho "Log in to App Store manually to install apps with mas...." $red
+cecho "Press Enter to open App Store. Please login." "$yello"
+read -r NIL
 open "/Applications/App Store.app"
 echo "Is app store login complete.(y/n)? "
-read response
+read -r response
 if [ "$response" != "${response#[Yy]}" ]
 then
     mas install 1569813296 # "1Password for Safari"
