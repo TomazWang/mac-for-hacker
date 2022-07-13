@@ -64,6 +64,11 @@ fi
 
 ### START ----------
 
+TEMP_DIR="~/mac-booster"
+mkdir -p $TEMP_DIR
+
+
+
 # Ask for admin password before runing
 cecho "Please enter password for administrator permission:" "$yellow"
 sudo -v
@@ -94,13 +99,14 @@ if test ! $(which brew); then
   /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 fi
 
+echo "brew upgrade"
 brew upgrade
+echo "brew update"
 brew update
 
 ### Creating Brewfile ----------
 cecho "# Generating Brefile ..." "$cyan"
-mkdir -p "~/.mac-booster"
-BREW_FILE="~/.mac-booster/Brewfile"
+BREW_FILE="$TEMP_DIR/Brewfile"
 
 cat > $BREW_FILE <<EOF
 tap "homebrew/cask-versions"        # for beta and canary versions
@@ -197,7 +203,7 @@ cecho "All remaining apps will be (re-)installed.                               
 echo ""
 cecho "Open the Brewfile?(Y/n)                                                      " "$yellow"
 read -r response
-response=${response:-Y}
+response=${response:-"Y"}
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
     open "$BREW_FILE"
 fi
@@ -226,8 +232,12 @@ if ! test $(which zsh); then
 fi
 
 # install oh-my-zsh
-cecho "# Installing oh-my-zsh..." "$cyan"
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+if [ ! -d "~/.oh-my-zsh" ]; then
+  cecho "# Installing oh-my-zsh..." "$cyan"
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+else 
+  echo "oh-my-zsh exists"
+fi
 
 
 cecho "# Logging in to Github via gh..." "$cyan"
