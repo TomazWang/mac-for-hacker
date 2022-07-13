@@ -3,7 +3,7 @@ Init a new Mac machine by simply running one line of script
 ### Usage
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/TomazWang/mac-for-hacker/main/setup.sh | sh
+curl -fsSL https://ins.tomaz.dev/mac/setup.sh | sh
 ```
 
 

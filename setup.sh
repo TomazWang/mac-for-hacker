@@ -78,7 +78,7 @@ cecho "Set your mac's name as $MAC_NAME?(Y/n)" "$yellow"
 read -r response
 response=${response:-Y}
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
-    cecho "# Setting ComputerName to $MAC_NAME" "$blue"
+    cecho "# Setting ComputerName to $MAC_NAME" "$cyan"
     scutil --set ComputerName "$MAC_NAME"
 fi
 
@@ -89,7 +89,7 @@ fi
 ##############################
 
 # Install Homebrew
-cecho "# Installing Homebrew..." "$blue"
+cecho "# Installing Homebrew..." "$cyan"
 if test ! $(which brew); then
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 fi
@@ -98,7 +98,7 @@ brew upgrade
 brew update
 
 ### Creating Brewfile ----------
-cecho "# Generating Brefile ..." "$blue"
+cecho "# Generating Brefile ..." "$cyan"
 mkdir -p "~/.mac-booster"
 BREW_FILE="~/.mac-booster/Brewfile"
 
@@ -152,8 +152,8 @@ cask "android-studio-preview-canary"
 
 
 # Browsers
-cask "firefox"
-cask "firefox-nightly"
+# cask "firefox"
+# cask "firefox-nightly"
 cask "google-chrome-canary"
 cask "google-chrome"
 
@@ -205,7 +205,7 @@ fi
 cecho "Install Brewfile? (Y/n)" "$yello"
 read -r response
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
-    cecho "# Installing formulas and casks via Brew..." "$blue"
+    cecho "# Installing formulas and casks via Brew..." "$cyan"
     brew bundle install -f "$BREW_FILE"
     brew cleanup
 fi
@@ -217,24 +217,24 @@ fi
 # Zsh
 ####################
 
-cecho "# Setup Zsh..." "$blue"
+cecho "# Setup Zsh..." "$cyan"
 
 if ! test $(which zsh); then
-    cecho "# Installing zsh via brew..." "$blue"
+    cecho "# Installing zsh via brew..." "$cyan"
     brew install zsh
 fi
 
 # install oh-my-zsh
-cecho "# Installing oh-my-zsh..." "$blue"
+cecho "# Installing oh-my-zsh..." "$cyan"
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 
-cecho "# Logging in to Github via gh..." "$blue"
+cecho "# Logging in to Github via gh..." "$cyan"
 # use public key scope for setting ssh key
 gh auth login -h github.com -p HTTPS -s admin:public_key
 
 
-cecho "# Setup ssh-key for git..." "$blue"
+cecho "# Setup ssh-key for git..." "$cyan"
 
 echo "This step will create a ssh key to use will pulling repo from github"
 cecho "Please enter your github account name for commenting the file and file name." "$yellow"
@@ -280,7 +280,7 @@ if ! test $(which chezmoi); then
 # Node
 ####################
 
-cecho "# Setup node env..." "$blue"
+cecho "# Setup node env..." "$cyan"
 
 if ! test $(which fnm); then
   echo "Install fnm to install node"
@@ -322,6 +322,56 @@ then
 else
 	cecho "App Store login not complete. Skipping installing App Store Apps" $red
 fi
+
+########################################
+# Manual setup each App
+########################################
+
+cecho "# Please setup each App manally..." "$cyan"
+
+APPS=(
+  "1Password"
+  "Alfred 4"
+  "Bartendar 4"
+  "TickTick"
+  'Todoist'
+  "Itsycal"
+  'Cleanshot X'
+  'Magnet'
+  'Yoink'
+  'Surfshark'
+  'Google Drive'
+  'Dropbox'
+  'Evernote'
+  'Logseq'
+  'LINE'
+  'Slack'
+  'Notion'
+  'Spotify'
+  'iTerm'
+  'Postman'
+  'Android Studio Preview'
+  'Android Studio'
+  'Visual Studio Code'
+  'TablePlus'
+)
+
+
+for app in "${APPS[@]}"
+do
+  APP_DIR="/Applications/${app}.app"
+  echo "checking ${app}"
+  if [ -d "$APP_DIR" ]
+  then
+    echo "open $app ?"
+    read -r res
+    res=${res:-y}
+    if [[ $res =~ ^([yY][eE][sS]|[yY])$ ]]; then
+      open "$APP_DIR"
+    fi
+  fi
+done
+
 
 
 ####################
