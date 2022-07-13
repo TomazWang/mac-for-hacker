@@ -65,12 +65,12 @@ fi
 ### START ----------
 
 # Ask for admin password before runing
-cecho "Please enter password for administrator permission" "$yellow"
+cecho "Please enter password for administrator permission:" "$yellow"
 sudo -v
 while true; do sudo -n; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 DEFAULT_DEVICE_NAME=$(scutil --get ComputerName)
-cecho "Please name this Mac...(default: ${DEFAULT_DEVICE_NAME}" "$yellow"
+cecho "Please name this Mac: (default: ${DEFAULT_DEVICE_NAME})" "$yellow"
 read -r MAC_NAME
 MAC_NAME=${MAC_NAME:-$DEFAULT_DEVICE_NAME}
 
@@ -259,6 +259,7 @@ Host github.com
 if ! test $(which chezmoi); then
   cecho "Download restore dotfiles with chezmoi?(Y/n)" "$yellow"
   read -r response
+  response=${response:-"Y"}
   if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]
   then
     cecho "# Syncing dotfiles with chezmoi..." "$blud"
