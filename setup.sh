@@ -218,7 +218,7 @@ response=${response:-"Y"}
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
     cecho "# Installing formulas and casks via Brew..." "$cyan"
     echo "Brewfile $BREW_FILE"
-    brew bundle install -f "$BREW_FILE"
+    brew bundle install --file "$BREW_FILE"
     brew cleanup
 fi
 
